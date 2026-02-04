@@ -4,7 +4,7 @@ Estudiante: Elmer Eduardo Salazar Flores 3-0426-0158
 I Cuatrimestre 2026
 Clase principal donde se inicia
 se hace respaldo en git
-y se ajusta
+
 */
 
 package proyecto1;
@@ -72,9 +72,10 @@ public class Main {
             return; 
         }
 
-        // Crear archivo .log numerado
+        // Crear archivo .log numerado con función en la clase FileManager
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
+        //se instancia la clase Lexer para analizar
         Lexer lexer = new Lexer();
         Validador validator = new Validador(errorManager);
 

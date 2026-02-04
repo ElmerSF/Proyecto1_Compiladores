@@ -3,8 +3,8 @@ UNED Informática Compiladores 3307
 Estudiante Elmer Eduardo Salazar Flores 3-0426-0158
 I Cuatrimestre 2026
 Clase para manejo de los archivos 
-lectura del .vb
-creación del .log 
+Leer el archivo .vb línea por línea
+- Crear el archivo .log con numeración de 4 dígitos
 */
 
 
@@ -22,16 +22,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase encargada de:
- *  - Leer el archivo .vb línea por línea
- *  - Crear el archivo .log con numeración de 4 dígitos
- *  - Escribir los errores detectados por el analizador
- *
- * Importante:
- *  - Aquí NO se hace análisis léxico ni sintáctico.
- *  - Solo se maneja entrada/salida de archivos.
- */
+
 public class FileManager {
 
     /**
@@ -50,7 +41,7 @@ public class FileManager {
                 System.out.println("El archivo indicado no existe: " + nombreArchivo);
                 return null;
             }
-
+            //areglo de lienas
             ArrayList<String> lineas = new ArrayList<>();
 
             BufferedReader br = new BufferedReader(new FileReader(archivo));
@@ -99,6 +90,56 @@ public class FileManager {
             FileWriter fw = new FileWriter(nombreLog, false); // false = sobrescribir
             PrintWriter pw = new PrintWriter(fw);
 
+            // <editor-fold defaultstate="collapsed" desc="Intento para manejar la numeración del archivo">
+ /*
+                  if (contador < 8) {
+
+                    pendiente = (pendiente + " " + revi.AnalizaTexto(linea)+" "+revi.ada());
+                    reglonerror.println("0000" + contador + " " + linea + " ");
+
+                    contador++;
+                } else {
+                    if (contador == 8) {
+                        Respuesta = (Respuesta + revi.AnalizaTexto(linea));
+                        reglonerror.println("0000" + contador + " " + linea + " " + pendiente + Respuesta);
+                        contador++;
+                    } else {
+
+                        if (contador <10) {
+                            Respuesta = (Respuesta + revi.AnalizaTexto(linea));
+                            reglonerror.println("0000" + contador + " " + linea + " " + Respuesta+" "+revi.ada());
+                            contador++;
+                        } else {
+                            if (contador < 100) {
+                                Respuesta = revi.AnalizaTexto(linea);
+                                reglonerror.println("000" + contador + " " + linea + " " + Respuesta+" "+revi.ada());
+                                contador++;
+                            } else {
+                                if (contador < 1000) {
+                                    Respuesta = revi.AnalizaTexto(linea);
+                                    reglonerror.println("00" + contador + " " + linea + " " + Respuesta+" "+revi.ada());
+                                    contador++;
+                                } else {
+                                    if (contador < 10000) {
+                                        Respuesta = revi.AnalizaTexto(linea);
+                                        reglonerror.println("0" + contador + " " + linea + " " + Respuesta+" "+revi.ada());
+                                        contador++;
+                                    } else {
+                                        Respuesta = revi.AnalizaTexto(linea);
+                                        reglonerror.println(contador + " " + linea + " " + Respuesta+" "+revi.ada());
+                                        contador++;
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            
+            */
+// </editor-fold>
+   
             // Escribimos cada línea con numeración de 4 dígitos
             for (int i = 0; i < lineas.length; i++) {
                 int numeroLinea = i + 1;
@@ -123,7 +164,6 @@ public class FileManager {
 
     /**
      * Escribe los errores en el archivo .log.
-     * Aquí estamos implementando la Opción 2 del enunciado:
      *  - Todos los errores se listan al final del archivo .log
      *  - Se indica el número de línea y la descripción.
      *
