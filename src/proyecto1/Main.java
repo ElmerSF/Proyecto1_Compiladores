@@ -4,6 +4,7 @@ Estudiante: Elmer Eduardo Salazar Flores 3-0426-0158
 I Cuatrimestre 2026
 Clase principal donde se inicia
 se hace respaldo en git
+y se ajusta
 */
 
 package proyecto1;
