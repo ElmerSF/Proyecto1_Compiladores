@@ -53,7 +53,7 @@ public class FileManager {
             }
 
             br.close();
-
+                //se retorna un arreglo de líneas
             return lineas.toArray(new String[0]);
 
         } catch (Exception e) {
@@ -61,6 +61,29 @@ public class FileManager {
             return null;
         }
     }
+    //esto es solo temporal para revisar los token
+    public void escribirTokensDebug(List<Token> tokens, int numeroLinea) {
+    try {
+        FileWriter fw = new FileWriter("tokens_debug.txt", true);
+        PrintWriter pw = new PrintWriter(fw);
+
+        pw.println("Línea " + String.format("%04d", numeroLinea) + ":");
+
+        for (Token t : tokens) {
+            pw.println(t.toString());
+        }
+
+        pw.println(); // línea en blanco
+
+        pw.flush();
+        pw.close();
+        fw.close();
+
+    } catch (Exception e) {
+        System.out.println("Error al escribir tokens de debug: " + e.getMessage());
+    }
+}
+
 
     /**
      * Crea el archivo .log a partir del archivo original .vb.

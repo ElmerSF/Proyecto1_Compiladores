@@ -79,12 +79,18 @@ public class Main {
         Lexer lexer = new Lexer();
         Validador validator = new Validador(errorManager);
 
-        // Procesar línea por línea
+        // Procesar línea por línea el arreglo que devolvío leerArchivo
         for (int i = 0; i < lineas.length; i++) {
             int numeroLinea = i + 1;
             String linea = lineas[i];
-
+            
+            //le pasamos el argumento de líne a la función tokenizar
             var tokens = lexer.tokenizar(linea);
+            //var tokens = lexer.tokenizar(linea);
+            fm.escribirTokensDebug(tokens, numeroLinea); // ← SOLO PARA PRUEBAS
+            //validator.validarLinea(tokens, linea, numeroLinea);
+
+            
 
             // Validación de la línea
             validator.validarLinea(tokens, linea, numeroLinea);
