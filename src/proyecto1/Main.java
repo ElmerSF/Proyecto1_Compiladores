@@ -3,16 +3,14 @@ UNED Informática Compiladores 3307
 Estudiante: Elmer Eduardo Salazar Flores 3-0426-0158
 I Cuatrimestre 2026
 Clase principal donde se inicia
-se hace respaldo en git
-
 */
 
 package proyecto1;
 
 public class Main {
 
-    static ErrorManager errorManager = new ErrorManager(); //instanciamos la clase ErrorManager
-    static String directorio = System.getProperty("user.dir"); // variable directorio le pasamos la información de la carpeta
+    static ErrorManager errorManager = new ErrorManager();
+    static String directorio = System.getProperty("user.dir");
 
     public static void main(String[] args) {
 
@@ -21,26 +19,22 @@ public class Main {
         System.out.println("\t Analizador Léxico   Proyecto 1 UNED Estudiante: Elmer Salazar (3-426-158)");
         System.out.println("--------------------------------------------------------------------------------------------------------------\n");
 
-        // Validación: se requiere un archivo como argumento
         if (args.length == 0) {
             System.out.println("No se indicó ningún archivo como argumento.");
-            System.out.println("¡Recuerde que se requiere un archivo .vb para analizar!");
             return;
         }
 
         String archivo = args[0];
 
-        // Validación de extensión
         if (!archivo.toLowerCase().endsWith(".vb")) {
             System.out.println("El archivo debe tener extensión .vb");
             return;
         }
 
-        // Mostrar ubicación
         System.out.println("Ubicación actual: " + directorio);
         System.out.println("Archivo recibido: " + archivo + "\n");
 
-        // Encabezado visual estilo personalizado
+        // ASCII ART
         System.out.println("\033[32m                          .-\"\"\"-.");
         System.out.println("\033[32m                         / .===. \\");
         System.out.println("\033[32m                         \\/ 6 6 \\/");
@@ -55,72 +49,86 @@ public class Main {
         System.out.println("\033[32m                         |__|__|");
         System.out.println("\033[32m                         /-'Y'-\\");
         System.out.println("\033[32m                        (__/ \\__)\n");
-
-        // Reseteamos el color
         System.out.println("\033[0m");
 
-        // Iniciar lectura del archivo
-        FileManager fm = new FileManager(); //instanciamos la clase FileManager
-        String[] lineas = fm.leerArchivo(archivo); //le pasamos el argumento archivo a la función leer archivo
+        // Leer archivo
+        FileManager fm = new FileManager();
+        String[] lineas = fm.leerArchivo(archivo);
 
-        if (lineas == null) {// si no se logra leer el arhivo
+        if (lineas == null) {
             System.out.println("No se pudo leer el archivo.");
             return;
         }
-        if (lineas.length == 0) {//si el archivo está vacío
-            System.out.println("El archivo está vacío. Se completó la lectura."); 
-            return; 
+        if (lineas.length == 0) {
+            System.out.println("El archivo está vacío.");
+            return;
         }
 
-        // Crear archivo .log numerado con función en la clase FileManager
+        // Crear archivo .log
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
-        //se instancia la clase Lexer para analizar
+        // Instancias principales
         SymbolTable symbolTable = new SymbolTable();
         Lexer lexer = new Lexer();
         Validador validator = new Validador(errorManager, symbolTable);
 
-        
-       // Validador validator = new Validador(errorManager, symbolTable);
-        
-        //Validador validator = new Validador(errorManager);
-
-        // Procesar línea por línea el arreglo que devolvío leerArchivo
+        // Procesar línea por línea
         for (int i = 0; i < lineas.length; i++) {
+
             int numeroLinea = i + 1;
             String linea = lineas[i];
-            
-            //le pasamos el argumento de líne a la función tokenizar
+
             var tokens = lexer.tokenizar(linea);
-            //var tokens = lexer.tokenizar(linea);
-            fm.escribirTokensDebug(tokens, numeroLinea); // ← SOLO PARA PRUEBAS
-            //validator.validarLinea(tokens, linea, numeroLinea);
 
-            
+            // Debug de tokens
+            fm.escribirTokensDebug(tokens, numeroLinea);
 
-            // Validación de la línea
+            // Validación
             validator.validarLinea(tokens, linea, numeroLinea);
         }
+
+        // Generar archivo de tabla de símbolos
+        fm.generarDebugSymbolTable(symbolTable);
+        //generarDebugSymbolTable(symbolTable);
 
         // Escribir errores en el log
         fm.escribirErrores(archivoLog, errorManager);
 
+        // Barra de progreso
         mostrarBarraProgreso();
-       // System.out.println("Proceso finalizado.");
+
         System.out.println("Archivo generado: " + archivoLog);
-        
     }
-   public static void mostrarBarraProgreso() {
-    System.out.print("\nProcesando: \033[32m");
-    for (int i = 0; i < 50; i++) {
-        System.out.print(">");
-        try {
-            Thread.sleep(120);
-        } catch (InterruptedException e) {}
+
+    // -------------------------------
+    // GENERAR ARCHIVO SYMBOLTABLE_DEBUG esto lo pase a FileManager
+    // -------------------------------
+   /* private static void generarDebugSymbolTable(SymbolTable symbolTable) {
+        try (java.io.PrintWriter writer = new java.io.PrintWriter("symboltable_debug.txt")) {
+
+            writer.println("TABLA DE SÍMBOLOS");
+            writer.println("------------------");
+
+            for (var entry : symbolTable.obtenerVariables().entrySet()) {
+                writer.println("Variable: " + entry.getKey() + "   Tipo: " + entry.getValue());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al generar symboltable_debug.txt: " + e.getMessage());
+        }
+    }*/
+
+    // -------------------------------
+    // BARRA DE PROGRESO
+    // -------------------------------
+    public static void mostrarBarraProgreso() {
+        System.out.print("\nProcesando: \033[32m");
+        for (int i = 0; i < 50; i++) {
+            System.out.print(">");
+            try {
+                Thread.sleep(90);
+            } catch (InterruptedException e) {}
+        }
+        System.out.println("\033[0m 100%");
     }
-    System.out.println("\033[0m 100%");
-}
-
-
-
 }

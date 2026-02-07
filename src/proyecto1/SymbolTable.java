@@ -13,18 +13,20 @@ public class SymbolTable {
 
     private final Map<String, String> variables = new HashMap<>();
 
-    // Registrar variable en la tabla
     public void registrar(String nombre, String tipo) {
         variables.put(nombre.toLowerCase(), tipo.toLowerCase());
     }
 
-    // Verificar si existe
     public boolean existe(String nombre) {
         return variables.containsKey(nombre.toLowerCase());
     }
 
-    // Obtener tipo de una variable
     public String tipoDe(String nombre) {
         return variables.get(nombre.toLowerCase());
+    }
+
+    // NUEVO: para generar archivo de salida
+    public Map<String, String> obtenerVariables() {
+        return variables;
     }
 }

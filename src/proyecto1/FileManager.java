@@ -232,4 +232,20 @@ public class FileManager {
             System.out.println("Error al escribir errores en el .log: " + e.getMessage());
         }
     }
+    
+    public void generarDebugSymbolTable(SymbolTable symbolTable) {
+    try (PrintWriter writer = new PrintWriter("symboltable_debug.txt")) {
+
+        writer.println("TABLA DE SÍMBOLOS");
+        writer.println("------------------");
+
+        for (var entry : symbolTable.obtenerVariables().entrySet()) {
+            writer.println("Variable: " + entry.getKey() + "   Tipo: " + entry.getValue());
+        }
+
+    } catch (Exception e) {
+        System.out.println("Error al generar symboltable_debug.txt: " + e.getMessage());
+    }
+}
+
 }

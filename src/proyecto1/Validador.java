@@ -84,8 +84,17 @@ public class Validador {
             validarAsignacion(tokens, linea, numeroLinea, tipo);
         }
 
-        // 5. Tokens extra
-        if (tokens.size() > 6) {
+        // 5. Tokens extra (solo si NO hay operación matemática)
+        boolean hayOperacion = false;
+        for (int i = 5; i < tokens.size(); i++) {
+            Token t = tokens.get(i);
+            if (t.type == TokenType.OPERATOR && t.lexema.matches("[+\\-*/]")) {
+                hayOperacion = true;
+                break;
+            }
+        }
+
+        if (!hayOperacion && tokens.size() > 6) {
             errorManager.agregarError(ErrorCode.TOKENS_EXTRA, linea, numeroLinea);
         }
     }
