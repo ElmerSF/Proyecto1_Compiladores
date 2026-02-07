@@ -6,16 +6,50 @@ Clase para manejo de los errores encontrados
 */
 package proyecto1;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author elmer
- */
 public class ErrorManager {
 
-    List<Error> getErrores() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private final List<Error> errores = new ArrayList<>();
+
+    /**
+     * Agrega un error a la lista.
+     */
+    public void agregarError(String descripcion, String linea, int numeroLinea) {
+        errores.add(new Error(numeroLinea, descripcion, linea));
     }
-    
+
+    /**
+     * Devuelve la lista de errores.
+     */
+    public List<Error> getErrores() {
+        return errores;
+    }
+
+    /**
+     * Escribe los errores en un archivo .log
+     */
+    public void escribirLog(String nombreArchivo) {
+        try {
+            FileWriter fw = new FileWriter(nombreArchivo);
+            PrintWriter pw = new PrintWriter(fw);
+
+            if (errores.isEmpty()) {
+                pw.println("No se encontraron errores.");
+            } else {
+                for (Error e : errores) {
+                    pw.println(e.toString());
+                }
+            }
+
+            pw.close();
+            fw.close();
+
+        } catch (Exception e) {
+            System.out.println("Error al escribir archivo log: " + e.getMessage());
+        }
+    }
 }

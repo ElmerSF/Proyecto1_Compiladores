@@ -6,22 +6,38 @@ Clase para manejo de eror de forma individual
 */
 package proyecto1;
 
-/**
- *
- * @author elmer
- */
 public class Error {
 
-    Object[] getLinea() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private final int numeroLinea;
+    private final String descripcion;
+    private final String lineaOriginal;
+
+    public Error(int numeroLinea, String descripcion, String lineaOriginal) {
+        this.numeroLinea = numeroLinea;
+        this.descripcion = descripcion;
+        this.lineaOriginal = lineaOriginal;
     }
 
-    String getNumero() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int getLinea() {
+        return numeroLinea;
     }
 
-    String getDescripcion() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public String getNumero() {
+        // Si deseas numerar errores, puedes devolver un ID.
+        // Por ahora devolvemos el número de línea como identificador.
+        return String.valueOf(numeroLinea);
     }
-    
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public String getLineaOriginal() {
+        return lineaOriginal;
+    }
+
+    @Override
+    public String toString() {
+        return "Línea " + numeroLinea + ": " + descripcion + " → \"" + lineaOriginal + "\"";
+    }
 }

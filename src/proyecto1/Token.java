@@ -9,24 +9,41 @@ package proyecto1;
 
 public class Token {
 
-    private String valor;
-    private TokenType tipo;
+    public final String lexema;     // El texto original del token
+    public final TokenType type;    // El tipo del token
 
-    public Token(String valor, TokenType tipo) {
-        this.valor = valor;
-        this.tipo = tipo;
+    public Token(String lexema, TokenType type) {
+        this.lexema = lexema;
+        this.type = type;
     }
 
-    public String getValor() {
-        return valor;
+    public String getLexema() {
+        return lexema;
     }
 
-    public TokenType getTipo() {
-        return tipo;
+    public TokenType getType() {
+        return type;
     }
 
     @Override
     public String toString() {
-        return "[" + tipo + " : " + valor + "]";
+        return "[" + type + " : " + lexema + "]";
+    }
+
+    /**
+     * Método para comparar tipo y lexema.
+     * Ejemplo: token.es("RESERVED_WORD", "Dim")
+     */
+    public boolean es(String tipoEsperado, String lexemaEsperado) {
+        return this.type.toString().equals(tipoEsperado)
+                && this.lexema.equalsIgnoreCase(lexemaEsperado);
+    }
+
+    /**
+     * Sobrecarga para comparar solo tipo.
+     * Ejemplo: token.es("OPERATOR")
+     */
+    public boolean es(String tipoEsperado) {
+        return this.type.toString().equals(tipoEsperado);
     }
 }

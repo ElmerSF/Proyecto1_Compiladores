@@ -15,23 +15,26 @@ public class Lexer {
 
     // Conjunto de palabras reservadas (normalizadas en mayúscula)
     public static final Set<String> PALABRAS_RESERVADAS = Set.of(
-        "MODULE",
-        "END",
+        "MODULE",//
+        "SUB",//
+        "DIM",//
+        "AS",//
+        "IF",//
+        "THEN",//
+        "ELSEIF",//
+        "ELSE",//
+        "FUNCTION",//
+        "RETURN",//
+        "WHILE",//
+         "END",//
+         
         "IMPORTS",
-        "DIM",
-        "AS",
+        
         "INTEGER",
         "STRING",
         "BOOLEAN",
         "BYTE",
-        "SUB",
-        "FUNCTION",
-        "RETURN",
-        "IF",
-        "THEN",
-        "ELSEIF",
-        "ELSE",
-        "WHILE",
+        
         "WRITELINE",
         "CONSOLE"
     );
