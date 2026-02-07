@@ -18,7 +18,7 @@ public class Main {
 
         // Mensaje de bienvenida
         System.out.println("--------------------------------------------------------------------------------------------------------------");
-        System.out.println("\t Analizador Léxico   Proyecto 1 UNED");
+        System.out.println("\t Analizador Léxico   Proyecto 1 UNED Estudiante: Elmer Salazar (3-426-158)");
         System.out.println("--------------------------------------------------------------------------------------------------------------\n");
 
         // Validación: se requiere un archivo como argumento
@@ -47,7 +47,7 @@ public class Main {
         System.out.println("\033[32m                         ( \\___/ )");
         System.out.println("\033[32m    _________________ooo__\\_____/_____________________");
         System.out.println("\033[32m   /                                                  \\");
-        System.out.println("\033[36m  |   ANALIZADOR LÉXICO   Proyecto 1 Compiladores      |");
+        System.out.println("\033[36m   |ANALIZADOR LÉXICO   Proyecto 1 Compiladores 03307  |");
         System.out.println("\033[32m   \\______________________________ooo_________________/");
         System.out.println("\033[32m                         |  |  |");
         System.out.println("\033[32m                         |_ | _|");
@@ -99,7 +99,22 @@ public class Main {
         // Escribir errores en el log
         fm.escribirErrores(archivoLog, errorManager);
 
-        System.out.println("Proceso finalizado.");
+        mostrarBarraProgreso();
+       // System.out.println("Proceso finalizado.");
         System.out.println("Archivo generado: " + archivoLog);
+        
     }
+   public static void mostrarBarraProgreso() {
+    System.out.print("\nProcesando: \033[32m");
+    for (int i = 0; i < 50; i++) {
+        System.out.print(">");
+        try {
+            Thread.sleep(120);
+        } catch (InterruptedException e) {}
+    }
+    System.out.println("\033[0m 100%");
+}
+
+
+
 }
