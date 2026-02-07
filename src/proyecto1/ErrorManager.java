@@ -18,8 +18,8 @@ public class ErrorManager {
     /**
      * Agrega un error a la lista.
      */
-    public void agregarError(String descripcion, String linea, int numeroLinea) {
-        errores.add(new Error(numeroLinea, descripcion, linea));
+        public void agregarError(ErrorCode codigo, String linea, int numeroLinea) {
+        errores.add(new Error(codigo, numeroLinea, linea));
     }
 
     /**

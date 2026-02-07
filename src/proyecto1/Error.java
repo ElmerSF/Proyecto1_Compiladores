@@ -8,28 +8,26 @@ package proyecto1;
 
 public class Error {
 
+    private final ErrorCode codigo;
     private final int numeroLinea;
-    private final String descripcion;
     private final String lineaOriginal;
 
-    public Error(int numeroLinea, String descripcion, String lineaOriginal) {
+    public Error(ErrorCode codigo, int numeroLinea, String lineaOriginal) {
+        this.codigo = codigo;
         this.numeroLinea = numeroLinea;
-        this.descripcion = descripcion;
         this.lineaOriginal = lineaOriginal;
+    }
+
+    public int getNumero() {
+        return codigo.getCodigo();
     }
 
     public int getLinea() {
         return numeroLinea;
     }
 
-    public String getNumero() {
-        // Si deseas numerar errores, puedes devolver un ID.
-        // Por ahora devolvemos el número de línea como identificador.
-        return String.valueOf(numeroLinea);
-    }
-
     public String getDescripcion() {
-        return descripcion;
+        return codigo.getMensaje();
     }
 
     public String getLineaOriginal() {
@@ -38,6 +36,9 @@ public class Error {
 
     @Override
     public String toString() {
-        return "Línea " + numeroLinea + ": " + descripcion + " → \"" + lineaOriginal + "\"";
+        return "Error " + getNumero() +
+               ". Línea " + String.format("%04d", numeroLinea) +
+               ". " + getDescripcion() +
+               " → \"" + lineaOriginal + "\"";
     }
 }
