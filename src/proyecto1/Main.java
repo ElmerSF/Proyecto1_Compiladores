@@ -76,8 +76,14 @@ public class Main {
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
         //se instancia la clase Lexer para analizar
+        SymbolTable symbolTable = new SymbolTable();
         Lexer lexer = new Lexer();
-        Validador validator = new Validador(errorManager);
+        Validador validator = new Validador(errorManager, symbolTable);
+
+        
+       // Validador validator = new Validador(errorManager, symbolTable);
+        
+        //Validador validator = new Validador(errorManager);
 
         // Procesar línea por línea el arreglo que devolvío leerArchivo
         for (int i = 0; i < lineas.length; i++) {

@@ -14,7 +14,14 @@ public enum ErrorCode {
     FALTA_IGUAL(104, "Se esperaba '=' para asignación."),
     FALTA_VALOR(105, "Falta el valor después de '='."),
     VALOR_NO_COMPATIBLE(106, "El valor asignado no es compatible con el tipo declarado."),
-    TOKENS_EXTRA(107, "Tokens extra después de la declaración de variable.");
+    TOKENS_EXTRA(107, "Tokens extra después de la declaración de variable."),
+    DIM_ANTES_DE_MODULE(108, "Las declaraciones Dim deben aparecer después del Module."),
+
+    // --- Errores para operaciones matemáticas ---
+    OPERADOR_INVALIDO(109, "Operador inválido en la operación matemática."),
+    VARIABLE_NO_DECLARADA(110, "Se está utilizando una variable no declarada."),
+    OPERANDO_NO_NUMERICO(111, "El operando no es numérico y no puede usarse en una operación matemática."),
+    OPERANDO_INVALIDO(112, "Operando inválido en la operación matemática.");
 
     private final int codigo;
     private final String mensaje;
@@ -32,4 +39,3 @@ public enum ErrorCode {
         return mensaje;
     }
 }
-
