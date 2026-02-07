@@ -37,6 +37,68 @@ public class Lexer {
     );
 
     public Lexer() {}
+  
+     // <editor-fold defaultstate="collapsed" desc="primer intento división por split">
+    /*
+    public List<Token> tokenizar(String linea) {
+    List<Token> tokens = new ArrayList<>();
+
+    // Dividir por espacios sin eliminar contenido interno
+    String[] partes = linea.trim().split("\\s+");
+
+    for (String parte : partes) {
+
+        if (parte.isEmpty()) continue;
+
+        String normalizado = parte.toUpperCase();
+
+        // 1. Palabras reservadas
+        if (PALABRAS_RESERVADAS.contains(normalizado)) {
+            tokens.add(new Token(parte, TokenType.RESERVED_WORD));
+            continue;
+        }
+
+        // 2. Identificadores válidos
+        if (parte.matches("[A-Za-z][A-Za-z0-9_]*")) {
+            tokens.add(new Token(parte, TokenType.IDENTIFIER));
+            continue;
+        }
+
+        // 3. Números
+        if (parte.matches("\\d+")) {
+            tokens.add(new Token(parte, TokenType.NUMBER));
+            continue;
+        }
+
+        // 4. Cadenas entre comillas
+        if (parte.startsWith("\"") && parte.endsWith("\"")) {
+            tokens.add(new Token(parte, TokenType.STRING_LITERAL));
+            continue;
+        }
+
+        // 5. Operadores simples
+     //  if (parte.matches("[=+\\-*]")) {
+        //    tokens.add(new Token(parte, TokenType.OPERATOR));
+          //  continue;
+        }
+
+        // 6. Símbolos
+      //  if (parte.matches("[()\",]")) {
+        //    tokens.add(new Token(parte, TokenType.SYMBOL));
+          //  continue;
+        //}
+
+
+        // 7. Cualquier otra cosa
+       // tokens.add(new Token(parte, TokenType.UNKNOWN));
+   // }
+
+    //return tokens;
+//}
+*/
+  
+    // </editor-fold>
+    
 
     public List<Token> tokenizar(String linea) {
         List<Token> tokens = new ArrayList<>();
