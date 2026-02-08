@@ -98,11 +98,38 @@ public class Validador {
         // ============================================================
         // 2. VALIDACIÓN DE "As"
         // ============================================================
+        // ============================================================
+        // 2. VALIDACIÓN DE "As"
+        // ============================================================
 
         Token asToken = tokens.get(2);
+
+        // ❌ CÓDIGO VIEJO:
+        // if (!asToken.es("RESERVED_WORD", "As")) {
+        //     errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
+        // }
+
+        // ✔ MEJORA: detectar identificador con espacios
+        // Patrón: Dim nombre completo As String = ""
+        // tokens[0] = Dim
+        // tokens[1] = IDENTIFIER (nombre)
+        // tokens[2] = IDENTIFIER (completo)  ← aquí
+        // tokens[3] = RESERVED_WORD As
+        if (asToken.type == TokenType.IDENTIFIER
+                && tokens.size() > 3
+                && tokens.get(3).es("RESERVED_WORD", "As")) {
+
+            // En este caso interpretamos que el usuario intentó usar "nombre completo"
+            // como un solo identificador, lo cual no es válido.
+            errorManager.agregarError(ErrorCode.IDENTIFICADOR_CON_ESPACIOS, linea, numeroLinea);
+            return; // detenemos aquí para no encadenar errores falsos
+        }
+
+        // Caso general: falta As en la posición correcta
         if (!asToken.es("RESERVED_WORD", "As")) {
             errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
         }
+
 
         // ============================================================
         // 3. VALIDACIÓN DEL TIPO

@@ -93,6 +93,10 @@ public enum ErrorCode {
     IDENTIFICADOR_INICIA_CON_NUMERO(
         119,
         "Un identificador no puede iniciar con un número."
+    ),
+        IDENTIFICADOR_CON_ESPACIOS(
+        120,
+        "Un identificador no puede contener espacios."
     );
 
     private final int codigo;
