@@ -1,27 +1,99 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+UNED Informática Compiladores 3307
+Estudiante: Elmer Eduardo Salazar Flores 3-0426-0158
+I Cuatrimestre 2026
+Enumeración de códigos de error del analizador
+*/
+
 package proyecto1;
 
 public enum ErrorCode {
 
-    // --- Errores del punto 5 (Dim) ---
-    DECLARACION_INCOMPLETA(100, "Declaración Dim incompleta."),
-    IDENTIFICADOR_INVALIDO(101, "Se esperaba un identificador después de 'Dim'."),
-    FALTA_AS(102, "Se esperaba la palabra reservada 'As'."),
-    TIPO_INVALIDO(103, "Tipo de dato inválido en declaración Dim."),
-    FALTA_IGUAL(104, "Se esperaba '=' para asignación."),
-    FALTA_VALOR(105, "Falta el valor después de '='."),
-    VALOR_NO_COMPATIBLE(106, "El valor asignado no es compatible con el tipo declarado."),
-    TOKENS_EXTRA(107, "Tokens extra después de la declaración de variable."),
-    DIM_ANTES_DE_MODULE(108, "Las declaraciones Dim deben aparecer después del Module."),
+    IDENTIFICADOR_INVALIDO(
+        101,
+        "Se esperaba un identificador después de 'Dim'."
+    ),
 
-    // --- Errores para operaciones matemáticas ---
-    OPERADOR_INVALIDO(109, "Operador inválido en la operación matemática."),
-    VARIABLE_NO_DECLARADA(110, "Se está utilizando una variable no declarada."),
-    OPERANDO_NO_NUMERICO(111, "El operando no es numérico y no puede usarse en una operación matemática."),
-    OPERANDO_INVALIDO(112, "Operando inválido en la operación matemática.");
+    FALTA_AS(
+        102,
+        "Se esperaba la palabra reservada 'As'."
+    ),
+
+    TIPO_INVALIDO(
+        103,
+        "Tipo de dato inválido en declaración Dim."
+    ),
+
+    VALOR_NO_COMPATIBLE(
+        106,
+        "El valor asignado no es compatible con el tipo declarado."
+    ),
+
+    TOKENS_EXTRA(
+        107,
+        "Tokens extra después de la declaración de variable."
+    ),
+
+    DIM_ANTES_DE_MODULE(
+        108,
+        "Las declaraciones Dim deben aparecer después del Module."
+    ),
+
+    OPERANDO_NO_NUMERICO(
+        109,
+        "Operando no numérico en la operación matemática."
+    ),
+
+    VARIABLE_NO_DECLARADA(
+        110,
+        "Se está utilizando una variable que no ha sido declarada."
+    ),
+
+    OPERADOR_INVALIDO(
+        111,
+        "Operador inválido en la operación matemática."
+    ),
+
+    OPERANDO_INVALIDO(
+        112,
+        "Operando inválido en la operación matemática."
+    ),
+
+    USO_PALABRA_RESERVADA_COMO_TIPO(
+        113,
+        "Los tipos de variables solamente pueden ser: (Integer, String, Boolean y Byte). No se puede usar una palabra reservada como tipo."
+    ),
+
+    USO_PALABRA_RESERVADA_COMO_IDENTIFICADOR(
+        114,
+        "No se puede usar una palabra reservada como identificador."
+    ),
+
+    DECLARACION_INCOMPLETA(
+        115,
+        "Declaración Dim incompleta."
+    ),
+
+    FALTA_IGUAL(
+        116,
+        "Se esperaba el operador '=' en la asignación."
+    ),
+
+    FALTA_VALOR(
+        117,
+        "Se esperaba un valor después del '='."
+    ),
+
+    //  identificadores inválidos por forma
+    IDENTIFICADOR_INICIA_CON_GUION_BAJO(
+        118,
+        "Un identificador no puede iniciar con '_'."
+    ),
+
+    IDENTIFICADOR_INICIA_CON_NUMERO(
+        119,
+        "Un identificador no puede iniciar con un número."
+    );
 
     private final int codigo;
     private final String mensaje;
@@ -37,5 +109,10 @@ public enum ErrorCode {
 
     public String getMensaje() {
         return mensaje;
+    }
+
+    @Override
+    public String toString() {
+        return "Error " + codigo + ". " + mensaje;
     }
 }

@@ -37,68 +37,6 @@ public class Lexer {
     );
 
     public Lexer() {}
-  
-     // <editor-fold defaultstate="collapsed" desc="primer intento división por split">
-    /*
-    public List<Token> tokenizar(String linea) {
-    List<Token> tokens = new ArrayList<>();
-
-    // Dividir por espacios sin eliminar contenido interno
-    String[] partes = linea.trim().split("\\s+");
-
-    for (String parte : partes) {
-
-        if (parte.isEmpty()) continue;
-
-        String normalizado = parte.toUpperCase();
-
-        // 1. Palabras reservadas
-        if (PALABRAS_RESERVADAS.contains(normalizado)) {
-            tokens.add(new Token(parte, TokenType.RESERVED_WORD));
-            continue;
-        }
-
-        // 2. Identificadores válidos
-        if (parte.matches("[A-Za-z][A-Za-z0-9_]*")) {
-            tokens.add(new Token(parte, TokenType.IDENTIFIER));
-            continue;
-        }
-
-        // 3. Números
-        if (parte.matches("\\d+")) {
-            tokens.add(new Token(parte, TokenType.NUMBER));
-            continue;
-        }
-
-        // 4. Cadenas entre comillas
-        if (parte.startsWith("\"") && parte.endsWith("\"")) {
-            tokens.add(new Token(parte, TokenType.STRING_LITERAL));
-            continue;
-        }
-
-        // 5. Operadores simples
-     //  if (parte.matches("[=+\\-*]")) {
-        //    tokens.add(new Token(parte, TokenType.OPERATOR));
-          //  continue;
-        }
-
-        // 6. Símbolos
-      //  if (parte.matches("[()\",]")) {
-        //    tokens.add(new Token(parte, TokenType.SYMBOL));
-          //  continue;
-        //}
-
-
-        // 7. Cualquier otra cosa
-       // tokens.add(new Token(parte, TokenType.UNKNOWN));
-   // }
-
-    //return tokens;
-//}
-*/
-  
-    // </editor-fold>
-    
 
     public List<Token> tokenizar(String linea) {
         List<Token> tokens = new ArrayList<>();
@@ -112,21 +50,28 @@ public class Lexer {
         while (i < n) {
             char c = linea.charAt(i);
 
-            // Espacios
+            // ============================================================
+            // ESPACIOS EN BLANCO
+            // ============================================================
             if (Character.isWhitespace(c)) {
                 i++;
                 continue;
             }
 
-            // Comentarios: todo lo que sigue a '
+            // ============================================================
+            // COMENTARIOS (todo lo que sigue a ')
+            // ============================================================
             if (c == '\'') {
                 break;
             }
 
-            // Strings entre comillas, con espacios internos
+            // ============================================================
+            // STRINGS ENTRE COMILLAS
+            // ============================================================
             if (c == '"') {
+                // CÓDIGO ORIGINAL (correcto, lo mantenemos)
                 int inicio = i;
-                i++; // saltar la primera comilla
+                i++; 
                 StringBuilder sb = new StringBuilder();
                 sb.append('"');
                 boolean cerrado = false;
@@ -136,44 +81,83 @@ public class Lexer {
                     sb.append(d);
                     if (d == '"') {
                         cerrado = true;
-                        i++; // incluir comilla de cierre
+                        i++;
                         break;
                     }
                     i++;
                 }
 
-                String lexema = sb.toString();
-                if (cerrado) {
-                    tokens.add(new Token(lexema, TokenType.STRING_LITERAL));
-                } else {
-                    // comilla sin cerrar, igual lo tomamos como STRING_LITERAL
-                    tokens.add(new Token(lexema, TokenType.STRING_LITERAL));
-                }
+                tokens.add(new Token(sb.toString(), TokenType.STRING_LITERAL));
                 continue;
             }
 
-            // Números (enteros o decimales)
-            if (Character.isDigit(c)) {
-                int inicio = i;
-                boolean tienePunto = false;
-                while (i < n && (Character.isDigit(linea.charAt(i)) || linea.charAt(i) == '.')) {
-                    if (linea.charAt(i) == '.') {
-                        if (tienePunto) break; // segundo punto, se corta
-                        tienePunto = true;
-                    }
-                    i++;
-                }
-                String lexema = linea.substring(inicio, i);
-                tokens.add(new Token(lexema, TokenType.NUMBER));
-                continue;
-            }
+            // ============================================================
+            // IDENTIFICADORES INVÁLIDOS
+            // ============================================================
 
-            // Identificadores o palabras reservadas
-            if (Character.isLetter(c)) {
+            // ❌ CÓDIGO NUEVO: identificadores que empiezan con "_"
+            // Antes no se detectaban explícitamente
+            if (c == '_') {
                 int inicio = i;
                 while (i < n && (Character.isLetterOrDigit(linea.charAt(i)) || linea.charAt(i) == '_')) {
                     i++;
                 }
+                String lexema = linea.substring(inicio, i);
+
+                // Se marca como UNKNOWN para que el Validador determine el error exacto
+                tokens.add(new Token(lexema, TokenType.UNKNOWN));
+                continue;
+            }
+
+            // ❌ CÓDIGO NUEVO: identificadores inválidos que empiezan con número
+            // Antes se mezclaban con números válidos
+            if (Character.isDigit(c)) {
+
+                int inicio = i;
+                boolean tieneLetras = false;
+                boolean tienePunto = false;
+
+                while (i < n && (Character.isLetterOrDigit(linea.charAt(i)) || linea.charAt(i) == '_' || linea.charAt(i) == '.')) {
+
+                    char d = linea.charAt(i);
+
+                    if (Character.isLetter(d) || d == '_') {
+                        tieneLetras = true; // 4var, 3x3, 9_numero
+                    }
+
+                    if (d == '.') {
+                        if (tienePunto) break; // segundo punto → inválido
+                        tienePunto = true;
+                    }
+
+                    i++;
+                }
+
+                String lexema = linea.substring(inicio, i);
+
+                if (tieneLetras) {
+                    // Caso: 4var → UNKNOWN
+                    tokens.add(new Token(lexema, TokenType.UNKNOWN));
+                } else {
+                    // Caso: 12 o 12.5 → NUMBER
+                    tokens.add(new Token(lexema, TokenType.NUMBER));
+                }
+
+                continue;
+            }
+
+            // ============================================================
+            // IDENTIFICADORES VÁLIDOS O PALABRAS RESERVADAS
+            // ============================================================
+
+            // CÓDIGO ORIGINAL (correcto, lo mantenemos)
+            if (Character.isLetter(c)) {
+                int inicio = i;
+
+                while (i < n && (Character.isLetterOrDigit(linea.charAt(i)) || linea.charAt(i) == '_')) {
+                    i++;
+                }
+
                 String lexema = linea.substring(inicio, i);
                 String normalizado = lexema.toUpperCase();
 
@@ -185,21 +169,27 @@ public class Lexer {
                 continue;
             }
 
-            // Operadores simples
+            // ============================================================
+            // OPERADORES
+            // ============================================================
             if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '&') {
                 tokens.add(new Token(String.valueOf(c), TokenType.OPERATOR));
                 i++;
                 continue;
             }
 
-            // Símbolos
+            // ============================================================
+            // SÍMBOLOS
+            // ============================================================
             if (c == '(' || c == ')' || c == ',' ) {
                 tokens.add(new Token(String.valueOf(c), TokenType.SYMBOL));
                 i++;
                 continue;
             }
 
-            // Cualquier otro carácter
+            // ============================================================
+            // CUALQUIER OTRO CARÁCTER → UNKNOWN
+            // ============================================================
             tokens.add(new Token(String.valueOf(c), TokenType.UNKNOWN));
             i++;
         }

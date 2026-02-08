@@ -58,33 +58,92 @@ public class Validador {
             return;
         }
 
-        // 1. Identificador
+        // ============================================================
+        // 1. VALIDACIÓN DEL IDENTIFICADOR
+        // ============================================================
+
         Token identificador = tokens.get(1);
-        if (identificador.type != TokenType.IDENTIFIER) {
+
+        // ❌ CÓDIGO VIEJO (muy general, no distinguía causas)
+        // if (identificador.type != TokenType.IDENTIFIER) {
+        //     errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
+        // }
+
+        // ✔ NUEVA LÓGICA: detectamos causas específicas
+        if (identificador.type == TokenType.RESERVED_WORD) {
+            // Caso: Dim Return As Integer
+            errorManager.agregarError(ErrorCode.USO_PALABRA_RESERVADA_COMO_IDENTIFICADOR, linea, numeroLinea);
+
+        } else if (identificador.type == TokenType.UNKNOWN) {
+            // Casos: _var, 4var, __x, 9_numero
+
+            String lex = identificador.lexema;
+
+            if (lex.startsWith("_")) {
+                errorManager.agregarError(ErrorCode.IDENTIFICADOR_INICIA_CON_GUION_BAJO, linea, numeroLinea);
+
+            } else if (lex.matches("^[0-9].*")) {
+                errorManager.agregarError(ErrorCode.IDENTIFICADOR_INICIA_CON_NUMERO, linea, numeroLinea);
+
+            } else {
+                // Cualquier otro UNKNOWN
+                errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
+            }
+
+        } else if (identificador.type != TokenType.IDENTIFIER) {
+            // Caso general final
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
         }
 
-        // 2. Palabra reservada As
+        // ============================================================
+        // 2. VALIDACIÓN DE "As"
+        // ============================================================
+
         Token asToken = tokens.get(2);
         if (!asToken.es("RESERVED_WORD", "As")) {
             errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
         }
 
-        // 3. Tipo
+        // ============================================================
+        // 3. VALIDACIÓN DEL TIPO
+        // ============================================================
+
         Token tipo = tokens.get(3);
-        if (!esTipoValido(tipo.lexema)) {
+
+        // ❌ CÓDIGO VIEJO (muy genérico)
+        // if (!esTipoValido(tipo.lexema)) {
+        //     errorManager.agregarError(ErrorCode.TIPO_INVALIDO, linea, numeroLinea);
+        // }
+
+        boolean tipoEsValido = esTipoValido(tipo.lexema);
+
+        if (tipo.type == TokenType.RESERVED_WORD && !tipoEsValido) {
+            // Caso: Dim x As While
+            errorManager.agregarError(ErrorCode.USO_PALABRA_RESERVADA_COMO_TIPO, linea, numeroLinea);
+            return; // Detenemos para evitar errores duplicados
+        }
+
+        if (!tipoEsValido) {
+            // Caso: Dim x As Carro
             errorManager.agregarError(ErrorCode.TIPO_INVALIDO, linea, numeroLinea);
+            return;
         }
 
         // Registrar variable en tabla de símbolos
         symbolTable.registrar(identificador.lexema, tipo.lexema);
 
-        // 4. Validación opcional de asignación
+        // ============================================================
+        // 4. VALIDACIÓN DE ASIGNACIÓN (opcional)
+        // ============================================================
+
         if (tokens.size() > 4) {
             validarAsignacion(tokens, linea, numeroLinea, tipo);
         }
 
-        // 5. Tokens extra (solo si NO hay operación matemática)
+        // ============================================================
+        // 5. TOKENS EXTRA (solo si NO hay operación matemática)
+        // ============================================================
+
         boolean hayOperacion = false;
         for (int i = 5; i < tokens.size(); i++) {
             Token t = tokens.get(i);
