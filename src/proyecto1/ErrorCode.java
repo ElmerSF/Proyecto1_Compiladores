@@ -113,7 +113,23 @@ public enum ErrorCode {
         STRING_SIN_CERRAR(
         123, 
         "La cadena dentro de Console.WriteLine debe iniciar y terminar con comillas dobles."
+        ),
+        
+        MODULE_ANTES_DE_IMPORTS(
+        124, 
+        "La palabra reservada Module debe aparecer después de Imports."
+        ),
+        
+        MODULE_SIN_IDENTIFICADOR(
+        125, 
+        "Después de Module debe venir un identificador válido."
+        ),
+        
+        MODULE_ESPACIO_INCORRECTO(
+        126, 
+        "Entre Module y su identificador debe haber exactamente un espacio."
         );
+
 
 
     private final int codigo;

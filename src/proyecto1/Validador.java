@@ -13,7 +13,13 @@ public class Validador {
 
     private final ErrorManager errorManager;
     private final SymbolTable symbolTable;
+
     private boolean moduleEncontrado = false;
+
+    // ⭐ CÓDIGO NUEVO PUNTO 7:
+    // Necesitamos saber si ya vimos Imports antes de Module
+    private boolean importsEncontrado = false;
+    private boolean moduleValidado = false;
 
     public Validador(ErrorManager errorManager, SymbolTable symbolTable) {
         this.errorManager = errorManager;
@@ -28,7 +34,21 @@ public class Validador {
 
         Token primero = tokens.get(0);
 
-        // Detectar Module
+        // ⭐ CÓDIGO NUEVO PUNTO 7:
+        // Detectar Imports
+        if (primero.es("RESERVED_WORD", "Imports")) {
+            importsEncontrado = true;
+            return;
+        }
+
+        // ⭐ CÓDIGO NUEVO PUNTO 7:
+        // Validación completa del Module
+        if (primero.es("RESERVED_WORD", "Module")) {
+            validarModule(tokens, linea, numeroLinea);
+            return;
+        }
+
+        // Detectar Module (tu código original)
         if (primero.es("RESERVED_WORD", "Module")) {
             moduleEncontrado = true;
             return;
@@ -54,6 +74,45 @@ public class Validador {
             validarConsoleWriteLine(tokens, linea, numeroLinea);
             return;
         }
+    }
+
+    // ============================================================
+    // ⭐ CÓDIGO NUEVO PUNTO 7: Validación del Module
+    // ============================================================
+    private void validarModule(List<Token> tokens, String linea, int numeroLinea) {
+
+        // 1. Module debe aparecer después de Imports
+        if (!importsEncontrado) {
+            errorManager.agregarError(ErrorCode.MODULE_ANTES_DE_IMPORTS, linea, numeroLinea);
+            return;
+        }
+
+        // 2. Debe tener exactamente 2 tokens: Module + Identificador
+        if (tokens.size() < 2) {
+            errorManager.agregarError(ErrorCode.MODULE_SIN_IDENTIFICADOR, linea, numeroLinea);
+            return;
+        }
+
+        Token identificador = tokens.get(1);
+
+        // 3. Validar que el identificador sea IDENTIFIER válido
+        if (identificador.type != TokenType.IDENTIFIER) {
+            errorManager.agregarError(ErrorCode.MODULE_SIN_IDENTIFICADOR, linea, numeroLinea);
+            return;
+        }
+
+        // 4. Validar que haya EXACTAMENTE un espacio entre Module y el identificador
+        //    Esto se valida revisando la línea original
+        int indexModule = linea.indexOf("Module");
+        int indexIdent = linea.indexOf(identificador.lexema);
+
+        if (indexIdent - indexModule != 7) { // "Module" (6 letras) + 1 espacio = 7
+            errorManager.agregarError(ErrorCode.MODULE_ESPACIO_INCORRECTO, linea, numeroLinea);
+            return;
+        }
+
+        moduleValidado = true;
+        moduleEncontrado = true; // mantiene compatibilidad con tu lógica original
     }
 
     // ============================================================
@@ -85,21 +144,17 @@ public class Validador {
 
         // ============================================================
         // 1. PRIMERO: detectar STRING SIN CERRAR
-        //    Esto corrige los casos de las líneas 40 y 43.
         // ============================================================
         for (int i = 3; i < tokens.size(); i++) {
             Token t = tokens.get(i);
 
             if (t.type == TokenType.STRING_LITERAL) {
-
-                // Si empieza con " pero NO termina con "
                 if (!t.lexema.startsWith("\"") || !t.lexema.endsWith("\"")) {
                     errorManager.agregarError(ErrorCode.STRING_SIN_CERRAR, linea, numeroLinea);
                     return;
                 }
             }
 
-            // Si encontramos comillas Unicode (“ ”) → también es string sin cerrar
             if (t.lexema.equals("“") || t.lexema.equals("”")) {
                 errorManager.agregarError(ErrorCode.STRING_SIN_CERRAR, linea, numeroLinea);
                 return;
@@ -139,20 +194,16 @@ public class Validador {
         }
     }
 
-    /**
-     * Validación del formato de declaración de variables (Punto 5).
-     */
+    // ============================================================
+    // (TODO LO SIGUIENTE ES TU CÓDIGO ORIGINAL DEL PUNTO 5)
+    // ============================================================
+
     private void validarDeclaracionDim(List<Token> tokens, String linea, int numeroLinea) {
         
-        //la extensión mínima es de 4 token
         if (tokens.size() < 4) {
             errorManager.agregarError(ErrorCode.DECLARACION_INCOMPLETA, linea, numeroLinea);
             return;
         }
-
-        // ============================================================
-        // 1. VALIDACIÓN DEL IDENTIFICADOR
-        // ============================================================
 
         Token identificador = tokens.get(1);
 
@@ -177,10 +228,6 @@ public class Validador {
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
         }
 
-        // ============================================================
-        // 2. VALIDACIÓN DE "As"
-        // ============================================================
-
         Token asToken = tokens.get(2);
 
         if (asToken.type == TokenType.IDENTIFIER
@@ -194,10 +241,6 @@ public class Validador {
         if (!asToken.es("RESERVED_WORD", "As")) {
             errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
         }
-
-        // ============================================================
-        // 3. VALIDACIÓN DEL TIPO
-        // ============================================================
 
         Token tipo = tokens.get(3);
 
@@ -215,17 +258,9 @@ public class Validador {
 
         symbolTable.registrar(identificador.lexema, tipo.lexema);
 
-        // ============================================================
-        // 4. VALIDACIÓN DE ASIGNACIÓN (opcional)
-        // ============================================================
-
         if (tokens.size() > 4) {
             validarAsignacion(tokens, linea, numeroLinea, tipo);
         }
-
-        // ============================================================
-        // 5. TOKENS EXTRA (solo si NO hay operación matemática)
-        // ============================================================
 
         boolean hayOperacion = false;
         for (int i = 5; i < tokens.size(); i++) {
@@ -248,11 +283,6 @@ public class Validador {
                tipo.equalsIgnoreCase("Boolean");
     }
 
-    /**
-     * Validación completa de asignación:
-     * - Valor literal
-     * - Operación matemática
-     */
     private void validarAsignacion(List<Token> tokens, String linea, int numeroLinea, Token tipoDeclarado) {
 
         if (!tokens.get(4).es("OPERATOR", "=")) {
@@ -273,9 +303,6 @@ public class Validador {
         validarOperacionMatematica(tokens, linea, numeroLinea, tipoDeclarado);
     }
 
-    /**
-     * Validación de compatibilidad tipo–valor literal.
-     */
     private void validarCompatibilidad(Token tipo, Token valor, String linea, int numeroLinea) {
 
         String t = tipo.lexema.toLowerCase();
@@ -312,12 +339,6 @@ public class Validador {
         }
     }
 
-    /**
-     * Validación de operaciones matemáticas:
-     * - operandos numéricos
-     * - variables declaradas
-     * - operadores válidos
-     */
     private void validarOperacionMatematica(List<Token> tokens, String linea, int numeroLinea, Token tipoDeclarado) {
 
         for (int i = 5; i < tokens.size(); i++) {
