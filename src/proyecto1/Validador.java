@@ -46,6 +46,97 @@ public class Validador {
             validarDeclaracionDim(tokens, linea, numeroLinea);
             return;
         }
+
+        // ============================================================
+        // PUNTO 6: Validación de Console.WriteLine(...)
+        // ============================================================
+        if (esConsoleWriteLine(tokens)) {
+            validarConsoleWriteLine(tokens, linea, numeroLinea);
+            return;
+        }
+    }
+
+    // ============================================================
+    // FUNCIÓN AUXILIAR: Detectar Console.WriteLine
+    // ============================================================
+    private boolean esConsoleWriteLine(List<Token> tokens) {
+
+        if (tokens.size() < 3) {
+            return false;
+        }
+
+        // Patrón base: Console . WriteLine
+        if (tokens.get(0).type == TokenType.IDENTIFIER &&
+            tokens.get(0).lexema.equalsIgnoreCase("Console") &&
+            tokens.get(1).lexema.equals(".") &&
+            tokens.get(2).type == TokenType.IDENTIFIER &&
+            tokens.get(2).lexema.equalsIgnoreCase("WriteLine")) {
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // VALIDACIÓN COMPLETA DEL PUNTO 6
+    // ============================================================
+    private void validarConsoleWriteLine(List<Token> tokens, String linea, int numeroLinea) {
+
+        // ============================================================
+        // 1. PRIMERO: detectar STRING SIN CERRAR
+        //    Esto corrige los casos de las líneas 40 y 43.
+        // ============================================================
+        for (int i = 3; i < tokens.size(); i++) {
+            Token t = tokens.get(i);
+
+            if (t.type == TokenType.STRING_LITERAL) {
+
+                // Si empieza con " pero NO termina con "
+                if (!t.lexema.startsWith("\"") || !t.lexema.endsWith("\"")) {
+                    errorManager.agregarError(ErrorCode.STRING_SIN_CERRAR, linea, numeroLinea);
+                    return;
+                }
+            }
+
+            // Si encontramos comillas Unicode (“ ”) → también es string sin cerrar
+            if (t.lexema.equals("“") || t.lexema.equals("”")) {
+                errorManager.agregarError(ErrorCode.STRING_SIN_CERRAR, linea, numeroLinea);
+                return;
+            }
+        }
+
+        // ============================================================
+        // 2. Validar paréntesis de cierre
+        // ============================================================
+        Token ultimo = tokens.get(tokens.size() - 1);
+
+        if (!ultimo.es("SYMBOL", ")")) {
+            errorManager.agregarError(ErrorCode.PARENTESIS_FALTANTE, linea, numeroLinea);
+            return;
+        }
+
+        // ============================================================
+        // 3. Validar paréntesis vacíos
+        // ============================================================
+        if (tokens.size() == 5) {
+            errorManager.agregarError(ErrorCode.PARENTESIS_VACIOS, linea, numeroLinea);
+            return;
+        }
+
+        // ============================================================
+        // 4. Validar strings sin cerrar cuando sí hay paréntesis
+        // ============================================================
+        for (int i = 4; i < tokens.size() - 1; i++) {
+            Token t = tokens.get(i);
+
+            if (t.type == TokenType.STRING_LITERAL) {
+                if (!t.lexema.startsWith("\"") || !t.lexema.endsWith("\"")) {
+                    errorManager.agregarError(ErrorCode.STRING_SIN_CERRAR, linea, numeroLinea);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -65,19 +156,10 @@ public class Validador {
 
         Token identificador = tokens.get(1);
 
-        // ❌ CÓDIGO VIEJO antes había planteado esto (muy general, no distinguía causas)
-        // if (identificador.type != TokenType.IDENTIFIER) {
-        //     errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
-        // }
-
-        // ✔ NUEVA LÓGICA: detectamos causas específicas
         if (identificador.type == TokenType.RESERVED_WORD) {
-            // Caso: Dim Return As Integer
             errorManager.agregarError(ErrorCode.USO_PALABRA_RESERVADA_COMO_IDENTIFICADOR, linea, numeroLinea);
 
         } else if (identificador.type == TokenType.UNKNOWN) {
-            // Casos: _var, 4var, __x, 9_numero
-            //cualquiera de los identificadoeres desconocidos 
 
             String lex = identificador.lexema;
 
@@ -88,48 +170,30 @@ public class Validador {
                 errorManager.agregarError(ErrorCode.IDENTIFICADOR_INICIA_CON_NUMERO, linea, numeroLinea);
 
             } else {
-                // Cualquier otro UNKNOWN
                 errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
             }
 
         } else if (identificador.type != TokenType.IDENTIFIER) {
-            // Caso general final
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
         }
 
-       //============================================================
         // ============================================================
         // 2. VALIDACIÓN DE "As"
         // ============================================================
 
         Token asToken = tokens.get(2);
 
-        // ❌ CÓDIGO VIEJO:
-        // if (!asToken.es("RESERVED_WORD", "As")) {
-        //     errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
-        // }
-
-        // ✔ MEJORA: detectar identificador con espacios
-        // Patrón: Dim nombre completo As String = ""
-        // tokens[0] = Dim
-        // tokens[1] = IDENTIFIER (nombre)
-        // tokens[2] = IDENTIFIER (completo)  ← aquí
-        // tokens[3] = RESERVED_WORD As
         if (asToken.type == TokenType.IDENTIFIER
                 && tokens.size() > 3
                 && tokens.get(3).es("RESERVED_WORD", "As")) {
 
-            // En este caso interpretamos que el usuario intentó usar "nombre completo"
-            // como un solo identificador, lo cual no es válido.
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_CON_ESPACIOS, linea, numeroLinea);
-            return; // detenemos aquí para no encadenar errores falsos
+            return;
         }
 
-        // Caso general: falta As en la posición correcta
         if (!asToken.es("RESERVED_WORD", "As")) {
             errorManager.agregarError(ErrorCode.FALTA_AS, linea, numeroLinea);
         }
-
 
         // ============================================================
         // 3. VALIDACIÓN DEL TIPO
@@ -137,26 +201,18 @@ public class Validador {
 
         Token tipo = tokens.get(3);
 
-        // ❌ CÓDIGO VIEJO (muy genérico)
-        // if (!esTipoValido(tipo.lexema)) {
-        //     errorManager.agregarError(ErrorCode.TIPO_INVALIDO, linea, numeroLinea);
-        // }
-
         boolean tipoEsValido = esTipoValido(tipo.lexema);
 
         if (tipo.type == TokenType.RESERVED_WORD && !tipoEsValido) {
-            // Caso: Dim x As While
             errorManager.agregarError(ErrorCode.USO_PALABRA_RESERVADA_COMO_TIPO, linea, numeroLinea);
-            return; // Detenemos para evitar errores duplicados
+            return;
         }
 
         if (!tipoEsValido) {
-            // Caso: Dim x As Carro
             errorManager.agregarError(ErrorCode.TIPO_INVALIDO, linea, numeroLinea);
             return;
         }
 
-        // Registrar variable en tabla de símbolos esto se usa para recordar lo que ya se declaró
         symbolTable.registrar(identificador.lexema, tipo.lexema);
 
         // ============================================================
@@ -209,13 +265,11 @@ public class Validador {
             return;
         }
 
-        // Caso 1: Asignación simple (literal)
         if (tokens.size() == 6) {
             validarCompatibilidad(tipoDeclarado, tokens.get(5), linea, numeroLinea);
             return;
         }
 
-        // Caso 2: Operación matemática
         validarOperacionMatematica(tokens, linea, numeroLinea, tipoDeclarado);
     }
 
@@ -270,7 +324,6 @@ public class Validador {
 
             Token t = tokens.get(i);
 
-            // Operadores válidos
             if (t.type == TokenType.OPERATOR) {
                 if (!t.lexema.matches("[+\\-*/]")) {
                     errorManager.agregarError(ErrorCode.OPERADOR_INVALIDO, linea, numeroLinea);
@@ -278,12 +331,10 @@ public class Validador {
                 continue;
             }
 
-            // Números
             if (t.type == TokenType.NUMBER) {
                 continue;
             }
 
-            // Identificadores → deben existir y ser numéricos
             if (t.type == TokenType.IDENTIFIER) {
 
                 if (!symbolTable.existe(t.lexema)) {
@@ -300,11 +351,9 @@ public class Validador {
                 continue;
             }
 
-            // Cualquier otro token es inválido
             errorManager.agregarError(ErrorCode.OPERANDO_INVALIDO, linea, numeroLinea);
         }
 
-        // Validar compatibilidad del resultado
         if (tipoDeclarado.lexema.equalsIgnoreCase("String") ||
             tipoDeclarado.lexema.equalsIgnoreCase("Boolean")) {
             errorManager.agregarError(ErrorCode.VALOR_NO_COMPATIBLE, linea, numeroLinea);

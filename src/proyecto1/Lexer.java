@@ -13,7 +13,20 @@ import java.util.Set;
 
 public class Lexer {
 
+    // ============================================================
     // Conjunto de palabras reservadas (normalizadas en mayúscula)
+    // ============================================================
+    // ❌ ANTES incluía "CONSOLE" y "WRITELINE"
+    // Esto causaba que Console y WriteLine se tokenizaran como RESERVED_WORD,
+    // lo cual impedía que el Validador detectara Console.WriteLine correctamente.
+    //
+    // ✔ AHORA se eliminan para que sean IDENTIFIER, como en VB real.
+    //
+    // (Se mantiene el código viejo como comentario)
+    //
+    // "WRITELINE",
+    // "CONSOLE"
+    //
     public static final Set<String> PALABRAS_RESERVADAS = Set.of(
         "MODULE",
         "SUB",
@@ -31,9 +44,7 @@ public class Lexer {
         "INTEGER",
         "STRING",
         "BOOLEAN",
-        "BYTE",
-        "WRITELINE",
-        "CONSOLE"
+        "BYTE"
     );
 
     public Lexer() {}
@@ -66,19 +77,16 @@ public class Lexer {
             }
 
             // ============================================================
-            // STRINGS ENTRE COMILLAS
+            // STRINGS ENTRE COMILLAS ASCII
             // ============================================================
             if (c == '"') {
-                // cadena de texto vamos recorriendo cada carácter
                 int inicio = i;
-                i++; 
-                
-                //lo vamos guardando temporalmente
+                i++;
+
                 StringBuilder sb = new StringBuilder();
                 sb.append('"');
                 boolean cerrado = false;
-                
-                //mientras no se haya cerrado las comillas
+
                 while (i < n) {
                     char d = linea.charAt(i);
                     sb.append(d);
@@ -89,15 +97,25 @@ public class Lexer {
                     }
                     i++;
                 }
-                    //lo identificamos como una cadena de texto
+
                 tokens.add(new Token(sb.toString(), TokenType.STRING_LITERAL));
                 continue;
             }
 
             // ============================================================
-            // IDENTIFICADORES INVÁLIDOS
+            // ✔ NUEVO: DETECTAR COMILLAS UNICODE (“ ”)
             // ============================================================
+            // Estas comillas NO eran detectadas y rompían el Punto 6.
+            // Se marcan como UNKNOWN para que el Validador detecte STRING_SIN_CERRAR.
+            if (c == '“' || c == '”') {
+                tokens.add(new Token(String.valueOf(c), TokenType.UNKNOWN));
+                i++;
+                continue;
+            }
 
+            // ============================================================
+            // IDENTIFICADORES INVÁLIDOS (tus comentarios originales)
+            // ============================================================
             //Ojo aquí puse ❌ CÓDIGO NUEVO: identificadores que empiezan con "_"
             // Antes no se detectaban explícitamente
             if (c == '_') {
@@ -151,9 +169,8 @@ public class Lexer {
 
             // ============================================================
             // IDENTIFICADORES VÁLIDOS O PALABRAS RESERVADAS
+            // (tus comentarios originales se mantienen)
             // ============================================================
-
-            // comparamos con las palabras reservadas
             if (Character.isLetter(c)) {
                 int inicio = i;
 

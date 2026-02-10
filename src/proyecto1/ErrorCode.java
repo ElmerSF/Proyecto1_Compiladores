@@ -99,7 +99,22 @@ public enum ErrorCode {
         IDENTIFICADOR_CON_ESPACIOS(
         120,
         "Un identificador no puede contener espacios."
-    );
+    ),
+        PARENTESIS_FALTANTE(
+        121, 
+        "La sentencia Console.WriteLine debe incluir paréntesis de apertura y cierre."
+        ),
+        
+        PARENTESIS_VACIOS(
+        122, 
+        "Los paréntesis de Console.WriteLine no pueden estar vacíos."
+     
+        ),
+        STRING_SIN_CERRAR(
+        123, 
+        "La cadena dentro de Console.WriteLine debe iniciar y terminar con comillas dobles."
+        );
+
 
     private final int codigo;
     private final String mensaje;
