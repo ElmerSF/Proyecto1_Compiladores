@@ -52,7 +52,8 @@ public class Validador {
      * Validación del formato de declaración de variables (Punto 5).
      */
     private void validarDeclaracionDim(List<Token> tokens, String linea, int numeroLinea) {
-
+        
+        //la extensión mínima es de 4 token
         if (tokens.size() < 4) {
             errorManager.agregarError(ErrorCode.DECLARACION_INCOMPLETA, linea, numeroLinea);
             return;
@@ -64,7 +65,7 @@ public class Validador {
 
         Token identificador = tokens.get(1);
 
-        // ❌ CÓDIGO VIEJO (muy general, no distinguía causas)
+        // ❌ CÓDIGO VIEJO antes había planteado esto (muy general, no distinguía causas)
         // if (identificador.type != TokenType.IDENTIFIER) {
         //     errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
         // }
@@ -76,6 +77,7 @@ public class Validador {
 
         } else if (identificador.type == TokenType.UNKNOWN) {
             // Casos: _var, 4var, __x, 9_numero
+            //cualquiera de los identificadoeres desconocidos 
 
             String lex = identificador.lexema;
 
@@ -95,9 +97,7 @@ public class Validador {
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_INVALIDO, linea, numeroLinea);
         }
 
-        // ============================================================
-        // 2. VALIDACIÓN DE "As"
-        // ============================================================
+       //============================================================
         // ============================================================
         // 2. VALIDACIÓN DE "As"
         // ============================================================
@@ -156,7 +156,7 @@ public class Validador {
             return;
         }
 
-        // Registrar variable en tabla de símbolos
+        // Registrar variable en tabla de símbolos esto se usa para recordar lo que ya se declaró
         symbolTable.registrar(identificador.lexema, tipo.lexema);
 
         // ============================================================

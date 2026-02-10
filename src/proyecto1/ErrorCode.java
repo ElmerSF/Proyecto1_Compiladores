@@ -7,6 +7,8 @@ Enumeración de códigos de error del analizador
 
 package proyecto1;
 
+//El uso de Enum aquí es por las mismas razones que en TokenType
+
 public enum ErrorCode {
 
     IDENTIFICADOR_INVALIDO(

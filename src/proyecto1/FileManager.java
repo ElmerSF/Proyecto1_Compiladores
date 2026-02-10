@@ -62,6 +62,7 @@ public class FileManager {
         }
     }
     //esto es solo temporal para revisar los token
+    //entrega un txt con los token clasificados
     public void escribirTokensDebug(List<Token> tokens, int numeroLinea) {
     try {
         FileWriter fw = new FileWriter("tokens_debug.txt", true);
@@ -232,7 +233,7 @@ public class FileManager {
             System.out.println("Error al escribir errores en el .log: " + e.getMessage());
         }
     }
-    
+    // esto es para escribir un archivo txt para validación y revisión de las variables declaradas 
     public void generarDebugSymbolTable(SymbolTable symbolTable) {
     try (PrintWriter writer = new PrintWriter("symboltable_debug.txt")) {
 

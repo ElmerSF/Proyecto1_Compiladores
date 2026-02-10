@@ -19,6 +19,7 @@ public class Main {
         System.out.println("\t Analizador Léxico   Proyecto 1 UNED Estudiante: Elmer Salazar (3-426-158)");
         System.out.println("--------------------------------------------------------------------------------------------------------------\n");
 
+        //si no se recibe ningún documento
         if (args.length == 0) {
             System.out.println("No se indicó ningún archivo como argumento.");
             return;
@@ -26,6 +27,7 @@ public class Main {
 
         String archivo = args[0];
 
+        //si el archivo no tiene la extensión vb la correcta
         if (!archivo.toLowerCase().endsWith(".vb")) {
             System.out.println("El archivo debe tener extensión .vb");
             return;
@@ -52,7 +54,10 @@ public class Main {
         System.out.println("\033[0m");
 
         // Leer archivo
+        //le pasamos de argunmento el archivo a la función leer archivo y recibimos 
         FileManager fm = new FileManager();
+        
+        //recibimos un arreglo de líneas
         String[] lineas = fm.leerArchivo(archivo);
 
         if (lineas == null) {
@@ -64,7 +69,8 @@ public class Main {
             return;
         }
 
-        // Crear archivo .log
+        // Crear archivo .log le pasamos el nombre del archivo y el arreglo de líneas
+        //nos regresa el nombre del log
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
         // Instancias principales
@@ -77,13 +83,16 @@ public class Main {
 
             int numeroLinea = i + 1;
             String linea = lineas[i];
-
+            
+            //le pasamos la línea a la función tokenizar
+            //nos devuelve un arreglo de lista
             var tokens = lexer.tokenizar(linea);
 
             // Debug de tokens
+            //Esto lo puse para obener un arhivo txt con los token para revisar
             fm.escribirTokensDebug(tokens, numeroLinea);
 
-            // Validación
+            // Validación le pasamos el token, la línea y el número de línea
             validator.validarLinea(tokens, linea, numeroLinea);
         }
 
@@ -119,14 +128,14 @@ public class Main {
     }*/
 
     // -------------------------------
-    // BARRA DE PROGRESO
+    // BARRA DE PROGRESO esto lo uso de apoyo visual en el cmd
     // -------------------------------
     public static void mostrarBarraProgreso() {
         System.out.print("\nProcesando: \033[32m");
         for (int i = 0; i < 50; i++) {
             System.out.print(">");
             try {
-                Thread.sleep(90);
+                Thread.sleep(60);
             } catch (InterruptedException e) {}
         }
         System.out.println("\033[0m 100%");

@@ -69,13 +69,16 @@ public class Lexer {
             // STRINGS ENTRE COMILLAS
             // ============================================================
             if (c == '"') {
-                // CÓDIGO ORIGINAL (correcto, lo mantenemos)
+                // cadena de texto vamos recorriendo cada carácter
                 int inicio = i;
                 i++; 
+                
+                //lo vamos guardando temporalmente
                 StringBuilder sb = new StringBuilder();
                 sb.append('"');
                 boolean cerrado = false;
-
+                
+                //mientras no se haya cerrado las comillas
                 while (i < n) {
                     char d = linea.charAt(i);
                     sb.append(d);
@@ -86,7 +89,7 @@ public class Lexer {
                     }
                     i++;
                 }
-
+                    //lo identificamos como una cadena de texto
                 tokens.add(new Token(sb.toString(), TokenType.STRING_LITERAL));
                 continue;
             }
@@ -95,7 +98,7 @@ public class Lexer {
             // IDENTIFICADORES INVÁLIDOS
             // ============================================================
 
-            // ❌ CÓDIGO NUEVO: identificadores que empiezan con "_"
+            //Ojo aquí puse ❌ CÓDIGO NUEVO: identificadores que empiezan con "_"
             // Antes no se detectaban explícitamente
             if (c == '_') {
                 int inicio = i;
@@ -150,7 +153,7 @@ public class Lexer {
             // IDENTIFICADORES VÁLIDOS O PALABRAS RESERVADAS
             // ============================================================
 
-            // CÓDIGO ORIGINAL (correcto, lo mantenemos)
+            // comparamos con las palabras reservadas
             if (Character.isLetter(c)) {
                 int inicio = i;
 
