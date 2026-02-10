@@ -14,18 +14,27 @@ public class Validador {
     private final ErrorManager errorManager;
     private final SymbolTable symbolTable;
 
+    // Control del orden lógico del archivo
     private boolean moduleEncontrado = false;
 
-    // ⭐ CÓDIGO NUEVO PUNTO 7:
-    // Necesitamos saber si ya vimos Imports antes de Module
+    // ⭐ PUNTO 7: Control de Imports y Module
     private boolean importsEncontrado = false;
     private boolean moduleValidado = false;
+
+    // ⭐ PUNTO 8: Control de End Module
+    // cantidadEndModule → cuántos End Module VÁLIDOS se han encontrado
+    // lineaEndModule → línea del ÚLTIMO End Module válido
+    private int cantidadEndModule = 0;
+    private int lineaEndModule = -1;
 
     public Validador(ErrorManager errorManager, SymbolTable symbolTable) {
         this.errorManager = errorManager;
         this.symbolTable = symbolTable;
     }
 
+    // ============================================================
+    // MÉTODO PRINCIPAL DE VALIDACIÓN POR LÍNEA
+    // ============================================================
     public void validarLinea(List<Token> tokens, String linea, int numeroLinea) {
 
         if (tokens == null || tokens.isEmpty()) {
@@ -34,30 +43,50 @@ public class Validador {
 
         Token primero = tokens.get(0);
 
-        // ⭐ CÓDIGO NUEVO PUNTO 7:
-        // Detectar Imports
+        // ⭐ PUNTO 8: Detectar End Module PRIMERO
+        // Esto garantiza que End Module se procese antes que cualquier otra regla.
+        if (esEndModule(tokens)) {
+            validarEndModule(tokens, linea, numeroLinea);
+            return;
+        }
+
+        // ⭐ PUNTO 8 – AJUSTE CORRECTO:
+        // Si ya hubo un End Module válido y aparece cualquier otra instrucción,
+        // eso significa que HAY CÓDIGO DESPUÉS DE END MODULE → debe marcar error.
+        if (cantidadEndModule > 0) {
+            // Marcamos el error en la línea actual (donde aparece código después)
+            errorManager.agregarError(
+                    ErrorCode.ENDMODULE_NO_ES_ULTIMA_LINEA,
+                    linea,
+                    numeroLinea
+            );
+
+            // Invalida el End Module anterior, porque ya no es el último
+            cantidadEndModule = 0;
+            lineaEndModule = -1;
+        }
+
+        // ⭐ PUNTO 7: Detectar Imports
         if (primero.es("RESERVED_WORD", "Imports")) {
             importsEncontrado = true;
             return;
         }
 
-        // ⭐ CÓDIGO NUEVO PUNTO 7:
-        // Validación completa del Module
+        // ⭐ PUNTO 7: Validación completa del Module
         if (primero.es("RESERVED_WORD", "Module")) {
             validarModule(tokens, linea, numeroLinea);
             return;
         }
 
-        // Detectar Module (tu código original)
+        // Compatibilidad con tu lógica original
         if (primero.es("RESERVED_WORD", "Module")) {
             moduleEncontrado = true;
             return;
         }
 
-        // Validación de declaraciones Dim
+        // ⭐ PUNTO 5: Validación de declaraciones Dim
         if (primero.es("RESERVED_WORD", "Dim")) {
 
-            // Validar que Dim NO aparezca antes del Module
             if (!moduleEncontrado) {
                 errorManager.agregarError(ErrorCode.DIM_ANTES_DE_MODULE, linea, numeroLinea);
                 return;
@@ -67,27 +96,92 @@ public class Validador {
             return;
         }
 
-        // ============================================================
-        // PUNTO 6: Validación de Console.WriteLine(...)
-        // ============================================================
+        // ⭐ PUNTO 6: Validación de Console.WriteLine(...)
         if (esConsoleWriteLine(tokens)) {
             validarConsoleWriteLine(tokens, linea, numeroLinea);
-            return;
         }
     }
 
     // ============================================================
-    // ⭐ CÓDIGO NUEVO PUNTO 7: Validación del Module
+    // ⭐ PUNTO 8: Detectar End Module
+    // ============================================================
+    private boolean esEndModule(List<Token> tokens) {
+
+        if (tokens.size() < 2) return false;
+
+        return tokens.get(0).es("RESERVED_WORD", "End") &&
+               tokens.get(1).es("RESERVED_WORD", "Module");
+    }
+
+    // ============================================================
+    // ⭐ PUNTO 8: Validación del End Module
+    // ============================================================
+    private void validarEndModule(List<Token> tokens, String linea, int numeroLinea) {
+
+        // 1. Validar espacio exacto entre End y Module
+        int indexEnd = linea.indexOf("End");
+        int indexModule = linea.indexOf("Module");
+
+        if (indexModule - indexEnd != 4) {
+            errorManager.agregarError(ErrorCode.ENDMODULE_ESPACIO_INCORRECTO, linea, numeroLinea);
+            return;
+        }
+
+        // 2. Validar que NO haya tokens extra en la misma línea
+        if (tokens.size() > 2) {
+            errorManager.agregarError(ErrorCode.ENDMODULE_TIENE_TOKENS_EXTRA, linea, numeroLinea);
+            return;
+        }
+
+        // 3. Registrar End Module como válido
+        cantidadEndModule++;
+        lineaEndModule = numeroLinea;
+    }
+
+    // ============================================================
+    // ⭐ PUNTO 8: Validación al final del archivo
+    // ============================================================
+    public void validarFinDeArchivo(int ultimaLineaConContenido) {
+
+        // Caso 1: No apareció ningún End Module válido
+        if (cantidadEndModule == 0) {
+            errorManager.agregarError(
+                    ErrorCode.ENDMODULE_NO_ES_ULTIMA_LINEA,
+                    "Fin de archivo",
+                    ultimaLineaConContenido
+            );
+            return;
+        }
+
+        // Caso 2: Apareció más de un End Module válido
+        if (cantidadEndModule > 1) {
+            errorManager.agregarError(
+                    ErrorCode.ENDMODULE_DUPLICADO,
+                    "Fin de archivo",
+                    lineaEndModule
+            );
+        }
+
+        // Caso 3: El End Module válido NO es la última línea con contenido
+        if (lineaEndModule != ultimaLineaConContenido) {
+            errorManager.agregarError(
+                    ErrorCode.ENDMODULE_NO_ES_ULTIMA_LINEA,
+                    "Fin de archivo",
+                    ultimaLineaConContenido
+            );
+        }
+    }
+
+    // ============================================================
+    // ⭐ PUNTO 7: Validación del Module
     // ============================================================
     private void validarModule(List<Token> tokens, String linea, int numeroLinea) {
 
-        // 1. Module debe aparecer después de Imports
         if (!importsEncontrado) {
             errorManager.agregarError(ErrorCode.MODULE_ANTES_DE_IMPORTS, linea, numeroLinea);
             return;
         }
 
-        // 2. Debe tener exactamente 2 tokens: Module + Identificador
         if (tokens.size() < 2) {
             errorManager.agregarError(ErrorCode.MODULE_SIN_IDENTIFICADOR, linea, numeroLinea);
             return;
@@ -95,24 +189,21 @@ public class Validador {
 
         Token identificador = tokens.get(1);
 
-        // 3. Validar que el identificador sea IDENTIFIER válido
         if (identificador.type != TokenType.IDENTIFIER) {
             errorManager.agregarError(ErrorCode.MODULE_SIN_IDENTIFICADOR, linea, numeroLinea);
             return;
         }
 
-        // 4. Validar que haya EXACTAMENTE un espacio entre Module y el identificador
-        //    Esto se valida revisando la línea original
         int indexModule = linea.indexOf("Module");
         int indexIdent = linea.indexOf(identificador.lexema);
 
-        if (indexIdent - indexModule != 7) { // "Module" (6 letras) + 1 espacio = 7
+        if (indexIdent - indexModule != 7) {
             errorManager.agregarError(ErrorCode.MODULE_ESPACIO_INCORRECTO, linea, numeroLinea);
             return;
         }
 
         moduleValidado = true;
-        moduleEncontrado = true; // mantiene compatibilidad con tu lógica original
+        moduleEncontrado = true;
     }
 
     // ============================================================
@@ -124,27 +215,19 @@ public class Validador {
             return false;
         }
 
-        // Patrón base: Console . WriteLine
-        if (tokens.get(0).type == TokenType.IDENTIFIER &&
-            tokens.get(0).lexema.equalsIgnoreCase("Console") &&
-            tokens.get(1).lexema.equals(".") &&
-            tokens.get(2).type == TokenType.IDENTIFIER &&
-            tokens.get(2).lexema.equalsIgnoreCase("WriteLine")) {
-
-            return true;
-        }
-
-        return false;
+        return tokens.get(0).type == TokenType.IDENTIFIER &&
+               tokens.get(0).lexema.equalsIgnoreCase("Console") &&
+               tokens.get(1).lexema.equals(".") &&
+               tokens.get(2).type == TokenType.IDENTIFIER &&
+               tokens.get(2).lexema.equalsIgnoreCase("WriteLine");
     }
 
     // ============================================================
-    // VALIDACIÓN COMPLETA DEL PUNTO 6
+    // PUNTO 6: Validación de Console.WriteLine
     // ============================================================
     private void validarConsoleWriteLine(List<Token> tokens, String linea, int numeroLinea) {
 
-        // ============================================================
-        // 1. PRIMERO: detectar STRING SIN CERRAR
-        // ============================================================
+        // 1. Detectar strings sin cerrar o comillas Unicode
         for (int i = 3; i < tokens.size(); i++) {
             Token t = tokens.get(i);
 
@@ -161,9 +244,7 @@ public class Validador {
             }
         }
 
-        // ============================================================
         // 2. Validar paréntesis de cierre
-        // ============================================================
         Token ultimo = tokens.get(tokens.size() - 1);
 
         if (!ultimo.es("SYMBOL", ")")) {
@@ -171,17 +252,13 @@ public class Validador {
             return;
         }
 
-        // ============================================================
         // 3. Validar paréntesis vacíos
-        // ============================================================
         if (tokens.size() == 5) {
             errorManager.agregarError(ErrorCode.PARENTESIS_VACIOS, linea, numeroLinea);
             return;
         }
 
-        // ============================================================
-        // 4. Validar strings sin cerrar cuando sí hay paréntesis
-        // ============================================================
+        // 4. Validar strings sin cerrar dentro de los paréntesis
         for (int i = 4; i < tokens.size() - 1; i++) {
             Token t = tokens.get(i);
 
@@ -195,11 +272,10 @@ public class Validador {
     }
 
     // ============================================================
-    // (TODO LO SIGUIENTE ES TU CÓDIGO ORIGINAL DEL PUNTO 5)
+    // PUNTO 5: Declaraciones Dim
     // ============================================================
-
     private void validarDeclaracionDim(List<Token> tokens, String linea, int numeroLinea) {
-        
+
         if (tokens.size() < 4) {
             errorManager.agregarError(ErrorCode.DECLARACION_INCOMPLETA, linea, numeroLinea);
             return;
@@ -230,9 +306,9 @@ public class Validador {
 
         Token asToken = tokens.get(2);
 
-        if (asToken.type == TokenType.IDENTIFIER
-                && tokens.size() > 3
-                && tokens.get(3).es("RESERVED_WORD", "As")) {
+        if (asToken.type == TokenType.IDENTIFIER &&
+            tokens.size() > 3 &&
+            tokens.get(3).es("RESERVED_WORD", "As")) {
 
             errorManager.agregarError(ErrorCode.IDENTIFICADOR_CON_ESPACIOS, linea, numeroLinea);
             return;
@@ -263,6 +339,7 @@ public class Validador {
         }
 
         boolean hayOperacion = false;
+
         for (int i = 5; i < tokens.size(); i++) {
             Token t = tokens.get(i);
             if (t.type == TokenType.OPERATOR && t.lexema.matches("[+\\-*/]")) {
@@ -377,6 +454,7 @@ public class Validador {
 
         if (tipoDeclarado.lexema.equalsIgnoreCase("String") ||
             tipoDeclarado.lexema.equalsIgnoreCase("Boolean")) {
+
             errorManager.agregarError(ErrorCode.VALOR_NO_COMPATIBLE, linea, numeroLinea);
         }
     }

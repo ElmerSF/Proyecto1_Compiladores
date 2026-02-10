@@ -128,7 +128,28 @@ public enum ErrorCode {
         MODULE_ESPACIO_INCORRECTO(
         126, 
         "Entre Module y su identificador debe haber exactamente un espacio."
+        ),
+        
+        ENDMODULE_NO_ES_ULTIMA_LINEA(
+        127, 
+        "End Module debe ser la última línea del archivo."
+        ),
+        
+        ENDMODULE_TIENE_TOKENS_EXTRA(
+        128, 
+        "En la misma línea de End Module no debe aparecer ninguna otra instrucción."
+        ),
+        
+        ENDMODULE_ESPACIO_INCORRECTO(
+        129, 
+        "Entre End y Module debe haber exactamente un espacio."
+        ),
+        
+        ENDMODULE_DUPLICADO(
+        130, 
+        "La sentencia End Module no puede aparecer más de una vez."
         );
+
 
 
 

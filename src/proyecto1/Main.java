@@ -54,7 +54,6 @@ public class Main {
         System.out.println("\033[0m");
 
         // Leer archivo
-        //le pasamos de argunmento el archivo a la función leer archivo y recibimos 
         FileManager fm = new FileManager();
         
         //recibimos un arreglo de líneas
@@ -69,8 +68,16 @@ public class Main {
             return;
         }
 
-        // Crear archivo .log le pasamos el nombre del archivo y el arreglo de líneas
-        //nos regresa el nombre del log
+        
+        System.out.println("=== DEBUG DE LÍNEAS ===");
+for (int i = 0; i < lineas.length; i++) {
+    System.out.println("[" + (i+1) + "] (" + lineas[i].length() + ") -> '" + lineas[i] + "'");
+}
+System.out.println("========================");
+
+        
+        
+        // Crear archivo .log
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
         // Instancias principales
@@ -84,21 +91,45 @@ public class Main {
             int numeroLinea = i + 1;
             String linea = lineas[i];
             
-            //le pasamos la línea a la función tokenizar
-            //nos devuelve un arreglo de lista
             var tokens = lexer.tokenizar(linea);
 
             // Debug de tokens
-            //Esto lo puse para obener un arhivo txt con los token para revisar
             fm.escribirTokensDebug(tokens, numeroLinea);
 
-            // Validación le pasamos el token, la línea y el número de línea
+            // Validación
             validator.validarLinea(tokens, linea, numeroLinea);
         }
 
+        // ⭐ CÓDIGO NUEVO PUNTO 8:
+        // Calcular la última línea con contenido (ignorando líneas vacías o invisibles al final)
+        int ultimaLineaConContenido = lineas.length;
+
+        while (ultimaLineaConContenido > 0) {
+
+            String linea = lineas[ultimaLineaConContenido - 1];
+
+            // Limpieza EXTREMA: elimina TODO lo que no sea visible
+            String limpia = linea
+                    .replaceAll("[\\s\\u00A0\\u200B\\uFEFF\\u202F\\u205F\\u3000]+", "")
+                    .replace("\uFEFF", "")   // BOM
+                    .trim();
+
+            if (limpia.isEmpty()) {
+                ultimaLineaConContenido--;
+            } else {
+                break;
+            }
+        }
+
+        if (ultimaLineaConContenido == 0) {
+            ultimaLineaConContenido = 1;
+        }
+
+        // Validar que End Module sea la última línea con contenido del archivo
+        validator.validarFinDeArchivo(ultimaLineaConContenido);
+
         // Generar archivo de tabla de símbolos
         fm.generarDebugSymbolTable(symbolTable);
-        //generarDebugSymbolTable(symbolTable);
 
         // Escribir errores en el log
         fm.escribirErrores(archivoLog, errorManager);
@@ -110,25 +141,7 @@ public class Main {
     }
 
     // -------------------------------
-    // GENERAR ARCHIVO SYMBOLTABLE_DEBUG esto lo pase a FileManager
-    // -------------------------------
-   /* private static void generarDebugSymbolTable(SymbolTable symbolTable) {
-        try (java.io.PrintWriter writer = new java.io.PrintWriter("symboltable_debug.txt")) {
-
-            writer.println("TABLA DE SÍMBOLOS");
-            writer.println("------------------");
-
-            for (var entry : symbolTable.obtenerVariables().entrySet()) {
-                writer.println("Variable: " + entry.getKey() + "   Tipo: " + entry.getValue());
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error al generar symboltable_debug.txt: " + e.getMessage());
-        }
-    }*/
-
-    // -------------------------------
-    // BARRA DE PROGRESO esto lo uso de apoyo visual en el cmd
+    // BARRA DE PROGRESO
     // -------------------------------
     public static void mostrarBarraProgreso() {
         System.out.print("\nProcesando: \033[32m");
