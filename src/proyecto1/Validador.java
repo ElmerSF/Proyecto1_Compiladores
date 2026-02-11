@@ -37,6 +37,7 @@ public class Validador {
     // ============================================================
     public void validarLinea(List<Token> tokens, String linea, int numeroLinea) {
 
+        // Línea vacía o sin tokens útiles → no se valida nada
         if (tokens == null || tokens.isEmpty()) {
             return;
         }
@@ -50,18 +51,27 @@ public class Validador {
             return;
         }
 
-        // ⭐ PUNTO 8 – AJUSTE CORRECTO:
+        // ⭐ PUNTO 9: Comentarios en Visual Basic
+        // Regla: solo se considera comentario válido si la línea INICIA con '
+        // Si la línea NO inicia con ' pero contiene ' en medio → comentario inválido para este proyecto.
+        String lineaTrim = linea.trim();
+        if (!lineaTrim.startsWith("'") && linea.contains("'")) {
+            // Comentario inválido al final o en medio de la línea
+            errorManager.agregarError(ErrorCode.COMENTARIO_INVALIDO, linea, numeroLinea);
+            return;
+        }
+
+        // ⭐ PUNTO 8 – CÓDIGO DESPUÉS DE UN END MODULE VÁLIDO:
         // Si ya hubo un End Module válido y aparece cualquier otra instrucción,
-        // eso significa que HAY CÓDIGO DESPUÉS DE END MODULE → debe marcar error.
+        // eso significa que hay código después de End Module → debe marcar error.
         if (cantidadEndModule > 0) {
-            // Marcamos el error en la línea actual (donde aparece código después)
             errorManager.agregarError(
                     ErrorCode.ENDMODULE_NO_ES_ULTIMA_LINEA,
                     linea,
                     numeroLinea
             );
 
-            // Invalida el End Module anterior, porque ya no es el último
+            // Invalida el End Module anterior, porque ya no es la última línea de código
             cantidadEndModule = 0;
             lineaEndModule = -1;
         }

@@ -5,6 +5,11 @@ I Cuatrimestre 2026
 Clase principal donde se inicia
 */
 
+// ASCII art basado en colecciones anónimas de:
+// ASCII Art Archive. (n.d.). ASCII Art Gallery. https://www.asciiart.eu/gallery
+// Modificado para uso en el Proyecto 1 de Compiladores (UNED).
+
+
 package proyecto1;
 
 public class Main {
@@ -69,11 +74,12 @@ public class Main {
         }
 
         
-        System.out.println("=== DEBUG DE LÍNEAS ===");
-for (int i = 0; i < lineas.length; i++) {
-    System.out.println("[" + (i+1) + "] (" + lineas[i].length() + ") -> '" + lineas[i] + "'");
-}
-System.out.println("========================");
+//Este código se incluyó en su momento para probar si habían lineas despúes del final        
+//            System.out.println("=== DEBUG DE LÍNEAS ===");
+//            for (int i = 0; i < lineas.length; i++) {
+//                System.out.println("[" + (i+1) + "] (" + lineas[i].length() + ") -> '" + lineas[i] + "'");
+//            }
+//            System.out.println("========================");
 
         
         
@@ -145,7 +151,7 @@ System.out.println("========================");
     // -------------------------------
     public static void mostrarBarraProgreso() {
         System.out.print("\nProcesando: \033[32m");
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 35; i++) {
             System.out.print(">");
             try {
                 Thread.sleep(60);

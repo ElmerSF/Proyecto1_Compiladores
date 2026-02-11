@@ -148,7 +148,12 @@ public enum ErrorCode {
         ENDMODULE_DUPLICADO(
         130, 
         "La sentencia End Module no puede aparecer más de una vez."
+        ),
+        COMENTARIO_INVALIDO(
+        131, 
+        "Los comentarios deben iniciar la línea. No se permiten comentarios al final de una instrucción."
         );
+
 
 
 

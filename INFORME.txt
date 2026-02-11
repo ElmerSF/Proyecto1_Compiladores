@@ -1,0 +1,84 @@
+UNED – Proyecto 1 de Compiladores (3307)
+Estudiante: Elmer Eduardo Salazar Flores – 3-0426-0158
+I Cuatrimestre 2026
+
+INFORME DE EJECUCIÓN DEL PROGRAMA
+---------------------------------
+
+Este documento describe los pasos necesarios para ejecutar el analizador del Proyecto 1,
+así como las condiciones mínimas que deben cumplirse para su funcionamiento correcto.
+
+
+1. REQUISITOS DEL SISTEMA
+-------------------------
+• Tener instalado Java (JDK 8 o superior).
+• Tener configurada la variable de entorno JAVA_HOME (opcional pero recomendado).
+• Contar con un archivo de entrada (.txt o .vb) que contenga el código a analizar.
+• El proyecto debe estar compilado correctamente (carpeta /bin o /out generada).
+
+
+2. ARCHIVOS NECESARIOS
+----------------------
+El programa requiere los siguientes archivos fuente:
+
+• Lexer.java
+• Token.java
+• TokenType.java
+• Validador.java
+• SymbolTable.java
+• ErrorCode.java
+• ErrorManager.java
+• Main.java
+
+El archivo Main.java es el punto de entrada del programa.
+
+
+3. CÓMO COMPILAR EL PROYECTO
+----------------------------
+Desde la terminal, ubicarse en la carpeta raíz del proyecto y ejecutar:
+
+    javac -d bin src/proyecto1/*.java
+
+Esto compilará todas las clases dentro de la carpeta /bin.
+
+
+4. CÓMO EJECUTAR EL ANALIZADOR
+------------------------------
+Una vez compilado, ejecutar:
+
+    java -cp bin proyecto1.Main <ruta_del_archivo_de_prueba>
+
+Ejemplo:
+
+    java -cp bin proyecto1.Main pruebas.txt
+
+
+5. DESCRIPCIÓN DEL FUNCIONAMIENTO
+---------------------------------
+• El programa lee el archivo línea por línea.
+• El Lexer convierte cada línea en tokens.
+• El Validador aplica las reglas de los puntos 5, 6, 7, 8 y 9 del enunciado.
+• Todos los errores detectados se almacenan en ErrorManager.
+• Al finalizar, se imprime un listado con todos los errores encontrados.
+
+
+6. RESULTADO DE LA EJECUCIÓN
+----------------------------
+El programa muestra:
+
+• El contenido del archivo con numeración de líneas.
+• Una sección final titulada “ERRORES DETECTADOS”.
+• Cada error incluye:
+  - Código de error
+  - Número de línea
+  - Mensaje descriptivo
+
+
+7. NOTAS ADICIONALES
+--------------------
+• Los comentarios válidos deben iniciar con ' (apóstrofe).
+• El archivo debe contener exactamente un End Module válido como última línea.
+• Si el archivo no cumple con las reglas del proyecto, el analizador lo reportará.
+
+
+Fin del informe.
