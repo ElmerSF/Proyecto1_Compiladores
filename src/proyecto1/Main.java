@@ -14,7 +14,10 @@ package proyecto1;
 
 public class Main {
 
+    //instanciamos la clase ErrorManager
     static ErrorManager errorManager = new ErrorManager();
+    
+    //obtenemos el directorio actual
     static String directorio = System.getProperty("user.dir");
 
     public static void main(String[] args) {
@@ -58,7 +61,7 @@ public class Main {
         System.out.println("\033[32m                        (__/ \\__)\n");
         System.out.println("\033[0m");
 
-        // Leer archivo
+        // instanciamos la clase para Leer archivo
         FileManager fm = new FileManager();
         
         //recibimos un arreglo de líneas
@@ -87,6 +90,7 @@ public class Main {
         String archivoLog = fm.crearArchivoLog(archivo, lineas);
 
         // Instancias principales
+        //se instancia la clase SymbolTable y Lexer
         SymbolTable symbolTable = new SymbolTable();
         Lexer lexer = new Lexer();
         Validador validator = new Validador(errorManager, symbolTable);
@@ -97,9 +101,11 @@ public class Main {
             int numeroLinea = i + 1;
             String linea = lineas[i];
             
+            //obtiene un arreglo de los token
             var tokens = lexer.tokenizar(linea);
 
-            // Debug de tokens
+            // Debug de tokens Esto se hizo temporalmente para tener una salida en txt
+            //con los token
             fm.escribirTokensDebug(tokens, numeroLinea);
 
             // Validación
@@ -108,6 +114,22 @@ public class Main {
 
         // ⭐ CÓDIGO NUEVO PUNTO 8:
         // Calcular la última línea con contenido (ignorando líneas vacías o invisibles al final)
+
+//<editor-fold defaultstate="collapsed" desc="Explicación del uso de la limpieza final">
+// ---------------------------------------------------------------
+// BLOQUE DE LIMPIEZA FINAL DEL ARCHIVO
+// Este procedimiento identifica la última línea REAL del archivo,
+// ignorando líneas vacías o compuestas por caracteres invisibles
+// (espacios Unicode, NBSP, BOM, zero‑width spaces, etc.).
+// Esto evita falsos positivos en la validación, especialmente en
+// reglas sensibles como la detección de 'END MODULE' o el conteo
+// de líneas. Algunos editores agregan basura invisible al final
+// del archivo, por lo que este paso garantiza que el analizador
+// trabaje únicamente con contenido válido y visible.
+// ---------------------------------------------------------------
+ 
+// </editor-fold>
+        
         int ultimaLineaConContenido = lineas.length;
 
         while (ultimaLineaConContenido > 0) {
